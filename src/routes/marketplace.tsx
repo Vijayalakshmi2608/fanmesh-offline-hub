@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
-import { PRODUCTS } from "@/lib/mock-data";
+import { useMarketplaceStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ShoppingBag, Heart, Star, Search, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/marketplace")({
@@ -19,9 +18,13 @@ export const Route = createFileRoute("/marketplace")({
 const CATS = ["All", "Tickets", "Jerseys", "Scarves", "Food Coupons", "Collectibles"] as const;
 
 function Marketplace() {
-  const [cat, setCat] = useState<(typeof CATS)[number]>("All");
-  const [q, setQ] = useState("");
-  const items = PRODUCTS.filter((p) => (cat === "All" || p.category === cat) && (!q || p.title.toLowerCase().includes(q.toLowerCase())));
+  const selectedCategory = useMarketplaceStore((state) => state.selectedCategory);
+  const searchQuery = useMarketplaceStore((state) => state.searchQuery);
+  const filterCategory = useMarketplaceStore((state) => state.filterCategory);
+  const searchProducts = useMarketplaceStore((state) => state.searchProducts);
+  const getFilteredProducts = useMarketplaceStore((state) => state.getFilteredProducts);
+  
+  const items = getFilteredProducts();
 
   return (
     <div>
@@ -33,7 +36,7 @@ function Marketplace() {
           <>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search items" className="pl-9 rounded-full w-64" />
+              <Input value={searchQuery} onChange={(e) => searchProducts(e.target.value)} placeholder="Search items" className="pl-9 rounded-full w-64" />
             </div>
             <Button variant="outline" className="rounded-full"><SlidersHorizontal className="size-4 mr-1.5" /> Filters</Button>
           </>
@@ -42,9 +45,9 @@ function Marketplace() {
 
       <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-thin">
         {CATS.map((c) => (
-          <button key={c} onClick={() => setCat(c)}
+          <button key={c} onClick={() => filterCategory(c)}
             className={cn("rounded-full px-4 py-2 text-sm font-medium transition shrink-0",
-              cat === c ? "gradient-primary text-primary-foreground shadow-glow" : "glass hover:bg-secondary/60")}>
+              selectedCategory === c ? "gradient-primary text-primary-foreground shadow-glow" : "glass hover:bg-secondary/60")}>
             {c}
           </button>
         ))}

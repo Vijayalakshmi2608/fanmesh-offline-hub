@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
-import { FANS } from "@/lib/mock-data";
+import { useNearbyFansStore } from "@/stores";
 import { Users, Radio, Signal, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,7 +17,8 @@ export const Route = createFileRoute("/nearby")({
 
 function Nearby() {
   const [q, setQ] = useState("");
-  const filtered = FANS.filter((f) =>
+  const nearbyUsers = useNearbyFansStore((state) => state.nearbyUsers);
+  const filtered = nearbyUsers.filter((f) =>
     !q || f.name.toLowerCase().includes(q.toLowerCase()) || f.country.toLowerCase().includes(q.toLowerCase()) || f.team.toLowerCase().includes(q.toLowerCase())
   );
   return (
@@ -25,7 +26,7 @@ function Nearby() {
       <PageHeader
         icon={<Users className="size-5" />}
         title="Nearby Fans"
-        subtitle={`${FANS.length} fans connected on the local mesh`}
+        subtitle={`${nearbyUsers.length} fans connected on the local mesh`}
         actions={
           <>
             <div className="relative">

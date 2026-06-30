@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
-import { ALERTS } from "@/lib/mock-data";
+import { useEmergencyAlertsStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,9 @@ const PRIO = {
 } as const;
 
 function Emergency() {
+  const alerts = useEmergencyAlertsStore((state) => state.alerts);
+  const activeAlerts = useEmergencyAlertsStore((state) => state.activeAlerts);
+  
   return (
     <div>
       <PageHeader icon={<Siren className="size-5" />} title="Emergency Alerts" subtitle="Local mesh broadcasts from stadium operations" />
@@ -42,7 +45,7 @@ function Emergency() {
       </motion.div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ALERTS.map((a, i) => {
+        {activeAlerts.map((a, i) => {
           const Icon = ICONS[a.category];
           return (
             <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} whileHover={{ y: -3 }}>

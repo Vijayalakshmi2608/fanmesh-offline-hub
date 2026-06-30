@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
-import { NOTIFICATIONS } from "@/lib/mock-data";
+import { useNotificationStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Bell, ShoppingBag, MessageCircle, Siren, Wallet, Users } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,13 +13,17 @@ export const Route = createFileRoute("/notifications")({
 const ICONS = { Marketplace: ShoppingBag, Chat: MessageCircle, Emergency: Siren, Wallet, Nearby: Users } as const;
 
 function NotificationsPage() {
+  const notifications = useNotificationStore((state) => state.notifications);
+  const getGroupedNotifications = useNotificationStore((state) => state.getGroupedNotifications);
   const groups = ["Emergency", "Chat", "Marketplace", "Wallet", "Nearby"] as const;
+  const grouped = getGroupedNotifications();
+  
   return (
     <div>
       <PageHeader icon={<Bell className="size-5" />} title="Notifications" subtitle="Grouped activity across your local mesh" />
       <div className="space-y-6">
         {groups.map((g) => {
-          const items = NOTIFICATIONS.filter((n) => n.group === g);
+          const items = grouped[g] || [];
           if (!items.length) return null;
           const Icon = ICONS[g];
           return (

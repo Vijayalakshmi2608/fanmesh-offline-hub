@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CONVERSATIONS, MESSAGES } from "@/lib/mock-data";
+import { useChatStore } from "@/stores";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -15,10 +15,16 @@ export const Route = createFileRoute("/chat")({
 });
 
 function Chat() {
-  const [active, setActive] = useState(CONVERSATIONS[0].id);
-  const [draft, setDraft] = useState("");
-  const conv = CONVERSATIONS.find((c) => c.id === active)!;
-  const msgs = MESSAGES.filter((m) => m.conversationId === active).slice(0, 30);
+  const conversations = useChatStore((state) => state.conversations);
+  const selectedConversationId = useChatStore((state) => state.selectedConversationId);
+  const messages = useChatStore((state) => state.messages);
+  const draftMessage = useChatStore((state) => state.draftMessage);
+  const selectConversation = useChatStore((state) => state.selectConversation);
+  const updateDraft = useChatStore((state) => state.updateDraft);
+  const sendMessage = useChatStore((state) => state.sendMessage);
+
+  const conv = conversations.find((c) => c.id === selectedConversationId)!;
+  const msgs = messages.filter((m) => m.conversationId === selectedConversationId).slice(0, 30);
 
   return (
     <div className="h-[calc(100vh-9rem)] grid grid-cols-1 md:grid-cols-[340px_1fr] gap-4">
@@ -30,12 +36,12 @@ function Chat() {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto scrollbar-thin">
-          {CONVERSATIONS.map((c) => (
+          {conversations.map((c) => (
             <button
               key={c.id}
-              onClick={() => setActive(c.id)}
+              onClick={() => selectConversation(c.id)}
               className={cn("w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-secondary/40 transition border-l-2",
-                c.id === active ? "bg-secondary/40 border-primary" : "border-transparent")}
+                c.id === selectedConversationId ? "bg-secondary/40 border-primary" : "border-transparent")}
             >
               <Avatar className="size-11"><AvatarImage src={c.avatar} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar>
               <div className="flex-1 min-w-0">
@@ -101,9 +107,9 @@ function Chat() {
         <div className="p-3 border-t border-border flex items-center gap-2">
           <Button variant="ghost" size="icon"><Smile className="size-5" /></Button>
           <Button variant="ghost" size="icon"><ImageIcon className="size-5" /></Button>
-          <Input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Type a message…" className="flex-1 rounded-full bg-secondary/40" />
+          <Input value={draftMessage} onChange={(e) => updateDraft(e.target.value)} placeholder="Type a message…" className="flex-1 rounded-full bg-secondary/40" />
           <Button variant="ghost" size="icon"><Mic className="size-5" /></Button>
-          <Button size="icon" className="rounded-full gradient-primary text-primary-foreground shadow-glow"><Send className="size-4" /></Button>
+          <Button size="icon" className="rounded-full gradient-primary text-primary-foreground shadow-glow" onClick={() => { if (draftMessage && selectedConversationId) sendMessage(draftMessage, selectedConversationId); }}><Send className="size-4" /></Button>
         </div>
       </section>
     </div>

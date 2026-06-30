@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
+import { useUserStore, useWalletStore } from "@/stores";
 import { CURRENT_USER } from "@/lib/mock-data";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +14,9 @@ export const Route = createFileRoute("/profile")({
 });
 
 function Profile() {
+  const profile = useUserStore((state) => state.profile);
+  const balance = useWalletStore((state) => state.balance);
+  
   return (
     <div>
       <PageHeader icon={<User className="size-5" />} title="Profile" subtitle="Your FanMesh fan identity" />
@@ -21,16 +25,16 @@ function Profile() {
         <div className="absolute inset-0 gradient-hero opacity-50" />
         <div className="relative flex flex-col md:flex-row items-center gap-6">
           <Avatar className="size-28 ring-4 ring-primary/40">
-            <AvatarImage src={CURRENT_USER.avatar} />
+            <AvatarImage src={profile.avatar} />
             <AvatarFallback>AM</AvatarFallback>
           </Avatar>
           <div className="flex-1 text-center md:text-left">
-            <div className="text-2xl font-bold">{CURRENT_USER.name}</div>
-            <div className="text-muted-foreground">{CURRENT_USER.username}</div>
+            <div className="text-2xl font-bold">{profile.name}</div>
+            <div className="text-muted-foreground">{profile.username}</div>
             <div className="mt-2 flex flex-wrap gap-2 justify-center md:justify-start">
-              <Badge variant="outline" className="rounded-full"><Globe className="size-3 mr-1" />{CURRENT_USER.flag} {CURRENT_USER.country}</Badge>
-              <Badge variant="outline" className="rounded-full"><Trophy className="size-3 mr-1" />{CURRENT_USER.team}</Badge>
-              <Badge variant="outline" className="rounded-full"><Languages className="size-3 mr-1" />{CURRENT_USER.language}</Badge>
+              <Badge variant="outline" className="rounded-full"><Globe className="size-3 mr-1" />{profile.flag} {profile.country}</Badge>
+              <Badge variant="outline" className="rounded-full"><Trophy className="size-3 mr-1" />{profile.team}</Badge>
+              <Badge variant="outline" className="rounded-full"><Languages className="size-3 mr-1" />{profile.language}</Badge>
             </div>
           </div>
           <Button className="rounded-full gradient-primary text-primary-foreground">Edit Profile</Button>
@@ -52,10 +56,10 @@ function Profile() {
 
         <Card className="glass rounded-2xl p-5 border-0">
           <div className="font-semibold mb-3 flex items-center gap-2"><Wallet className="size-4 text-primary" /> Wallet Status</div>
-          <div className="text-3xl font-bold text-gradient">${CURRENT_USER.walletBalance.toFixed(2)}</div>
+          <div className="text-3xl font-bold text-gradient">${balance.toFixed(2)}</div>
           <div className="text-xs text-muted-foreground">WDK · secured locally</div>
           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-            <Row icon={Languages} label="Language" value={CURRENT_USER.language} />
+            <Row icon={Languages} label="Language" value={profile.language} />
             <Row icon={Palette} label="Theme" value="Dark" />
           </div>
         </Card>

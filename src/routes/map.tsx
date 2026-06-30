@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
+import { useStadiumStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Map, DoorOpen, Utensils, ToiletIcon, HeartPulse, DoorClosed } from "lucide-react";
-import { STADIUM_SECTIONS } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/map")({
   head: () => ({ meta: [{ title: "Stadium Map — FanMesh AI" }] }),
@@ -25,6 +25,9 @@ function densityColor(d: number) {
 }
 
 function StadiumMap() {
+  const stadiumSections = useStadiumStore((state) => state.stadiumSections);
+  const crowdDensity = useStadiumStore((state) => state.crowdDensity);
+  
   return (
     <div>
       <PageHeader icon={<Map className="size-5" />} title="Stadium Map" subtitle="Live crowd density · heatmap powered by mesh telemetry" />
@@ -49,7 +52,7 @@ function StadiumMap() {
 
           {/* Seat blocks around pitch */}
           <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-2 p-6 pointer-events-none">
-            {STADIUM_SECTIONS.map((s, i) => {
+            {stadiumSections.map((s, i) => {
               const skip = [7, 8, 13, 14, 15, 16].includes(i); // open up center for pitch
               if (skip) return <div key={s.id} />;
               return (

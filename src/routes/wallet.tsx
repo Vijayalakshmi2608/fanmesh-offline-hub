@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
-import { CURRENT_USER, TRANSACTIONS } from "@/lib/mock-data";
+import { useWalletStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wallet, ArrowDownLeft, ArrowUpRight, QrCode, TrendingUp, TrendingDown } from "lucide-react";
@@ -15,8 +15,10 @@ export const Route = createFileRoute("/wallet")({
 const chart = Array.from({ length: 14 }, (_, i) => ({ d: `D${i + 1}`, v: 800 + Math.round(Math.sin(i) * 120 + Math.random() * 200) }));
 
 function WalletPage() {
-  const income = TRANSACTIONS.filter(t => t.type === "in").reduce((s, t) => s + t.amount, 0);
-  const expense = TRANSACTIONS.filter(t => t.type === "out").reduce((s, t) => s + t.amount, 0);
+  const balance = useWalletStore((state) => state.balance);
+  const transactions = useWalletStore((state) => state.transactions);
+  const income = useWalletStore((state) => state.transactions.filter(t => t.type === "in").reduce((s, t) => s + t.amount, 0));
+  const expense = useWalletStore((state) => state.transactions.filter(t => t.type === "out").reduce((s, t) => s + t.amount, 0));
 
   return (
     <div>
@@ -29,7 +31,7 @@ function WalletPage() {
                style={{ backgroundImage: "radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
           <div className="relative">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">Total Balance</div>
-            <div className="text-5xl font-extrabold mt-2">${CURRENT_USER.walletBalance.toFixed(2)}</div>
+            <div className="text-5xl font-extrabold mt-2">${balance.toFixed(2)}</div>
             <div className="text-sm text-muted-foreground mt-1">≈ 0.0184 BTC · WDK secured</div>
             <div className="mt-6 grid grid-cols-3 gap-2">
               <Button className="rounded-full gradient-primary text-primary-foreground"><ArrowDownLeft className="size-4 mr-1.5" /> Receive</Button>
@@ -77,7 +79,7 @@ function WalletPage() {
       <Card className="glass rounded-2xl p-5 border-0 mt-6">
         <div className="font-semibold mb-2">Transaction History</div>
         <div className="divide-y divide-border">
-          {TRANSACTIONS.map((t) => (
+          {transactions.map((t) => (
             <div key={t.id} className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
                 <div className={`size-10 rounded-xl grid place-items-center ${t.type === "in" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>

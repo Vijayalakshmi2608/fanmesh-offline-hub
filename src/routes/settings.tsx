@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
+import { useSettingsStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,6 +38,15 @@ function Row({ label, hint, control }: { label: string; hint?: string; control: 
 }
 
 function SettingsPage() {
+  const darkMode = useSettingsStore((state) => state.darkMode);
+  const language = useSettingsStore((state) => state.language);
+  const offlineMode = useSettingsStore((state) => state.offlineMode);
+  const downloadsEnabled = useSettingsStore((state) => state.downloadsEnabled);
+  const accessibility = useSettingsStore((state) => state.accessibility);
+  const updateSetting = useSettingsStore((state) => state.updateSetting);
+  const toggleDarkMode = useSettingsStore((state) => state.toggleDarkMode);
+  const updateAccessibility = useSettingsStore((state) => state.updateAccessibility);
+  
   return (
     <div>
       <PageHeader icon={<Settings className="size-5" />} title="Settings" subtitle="Tune FanMesh AI for your stadium experience" />
@@ -44,7 +54,7 @@ function SettingsPage() {
       <div className="grid md:grid-cols-2 gap-4">
         <Section icon={<Languages className="size-4" />} title="Language">
           <Row label="App language" control={
-            <Select defaultValue="English"><SelectTrigger className="w-40 rounded-full"><SelectValue /></SelectTrigger>
+            <Select value={language} onValueChange={(val) => updateSetting("language", val)}><SelectTrigger className="w-40 rounded-full"><SelectValue /></SelectTrigger>
             <SelectContent>{["English", "Spanish", "Portuguese", "French", "German", "Arabic"].map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select>
           } />
           <Row label="Auto-translate incoming chats" hint="On-device, no internet required" control={<Switch defaultChecked />} />
@@ -59,10 +69,10 @@ function SettingsPage() {
 
         <Section icon={<Palette className="size-4" />} title="Theme">
           <Row label="Color scheme" control={
-            <Select defaultValue="Dark"><SelectTrigger className="w-40 rounded-full"><SelectValue /></SelectTrigger>
-            <SelectContent>{["Dark", "System"].map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select>
+            <Select value={darkMode ? "Dark" : "Light"} onValueChange={(val) => { if (val === "Dark" && !darkMode) toggleDarkMode(); if (val === "Light" && darkMode) toggleDarkMode(); }}><SelectTrigger className="w-40 rounded-full"><SelectValue /></SelectTrigger>
+            <SelectContent>{["Light", "Dark"].map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select>
           } />
-          <Row label="Reduced motion" control={<Switch />} />
+          <Row label="Reduced motion" control={<Switch checked={accessibility.reducedMotion} onCheckedChange={(checked) => updateAccessibility({ ...accessibility, reducedMotion: checked })} />} />
         </Section>
 
         <Section icon={<Shield className="size-4" />} title="Privacy">
@@ -72,7 +82,7 @@ function SettingsPage() {
         </Section>
 
         <Section icon={<Download className="size-4" />} title="Downloads & Storage">
-          <Row label="Auto-download images" control={<Switch />} />
+          <Row label="Auto-download images" control={<Switch checked={downloadsEnabled} onCheckedChange={(checked) => updateSetting("downloadsEnabled", checked)} />} />
           <Row label="Cache size" hint="280 MB of 2 GB used"
                control={<div className="w-40"><Slider defaultValue={[14]} max={100} /></div>} />
         </Section>
@@ -82,7 +92,7 @@ function SettingsPage() {
             <Select defaultValue="30 days"><SelectTrigger className="w-40 rounded-full"><SelectValue /></SelectTrigger>
             <SelectContent>{["7 days", "30 days", "90 days", "Forever"].map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select>
           } />
-          <Row label="Sync via Pears relay" control={<Switch defaultChecked />} />
+          <Row label="Sync via Pears relay" control={<Switch checked={offlineMode} onCheckedChange={(checked) => updateSetting("offlineMode", checked)} />} />
         </Section>
 
         <Section icon={<Sparkles className="size-4" />} title="AI Preferences">

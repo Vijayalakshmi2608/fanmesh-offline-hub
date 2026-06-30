@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader, StatCard, SectionTitle } from "@/components/common/PageHeader";
+import { useUserStore, useNearbyFansStore, useNotificationStore, useWalletStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import {
   Radio, Languages, Trophy, ArrowUpRight, Activity, Zap, Clock
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { CURRENT_USER, TODAY_MATCH, FANS, NOTIFICATIONS, TRANSACTIONS } from "@/lib/mock-data";
+import { TODAY_MATCH, NOTIFICATIONS, TRANSACTIONS } from "@/lib/mock-data";
 import { useEffect, useState } from "react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip, BarChart, Bar } from "recharts";
 
@@ -52,6 +53,11 @@ function Countdown({ ms }: { ms: number }) {
 }
 
 function Dashboard() {
+  const profile = useUserStore((state) => state.profile);
+  const nearbyUsers = useNearbyFansStore((state) => state.nearbyUsers);
+  const notifications = useNotificationStore((state) => state.notifications);
+  const balance = useWalletStore((state) => state.balance);
+  
   return (
     <div className="space-y-6">
       <motion.div
@@ -62,12 +68,12 @@ function Dashboard() {
              style={{ backgroundImage: "radial-gradient(circle at 20% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
         <div className="relative grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <Badge className="rounded-full bg-primary/20 text-primary border-primary/30">Live Mesh · {CURRENT_USER.flag} {CURRENT_USER.country}</Badge>
+            <Badge className="rounded-full bg-primary/20 text-primary border-primary/30">Live Mesh · {profile.flag} {profile.country}</Badge>
             <h1 className="mt-3 text-3xl md:text-5xl font-extrabold tracking-tight">
-              Welcome back, <span className="text-gradient">{CURRENT_USER.name.split(" ")[0]}</span>
+              Welcome back, <span className="text-gradient">{profile.name.split(" ")[0]}</span>
             </h1>
             <p className="mt-3 text-muted-foreground max-w-md">
-              You're connected to 24 nearby fans via the local FanMesh relay. No internet required.
+              You're connected to {nearbyUsers.length} nearby fans via the local FanMesh relay. No internet required.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button asChild className="rounded-full gradient-primary text-primary-foreground shadow-glow">
@@ -98,10 +104,10 @@ function Dashboard() {
       </motion.div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <StatCard label="Nearby Fans" value="24" hint="+5 since arrival" icon={<Users className="size-5" />} delay={0.02} />
+        <StatCard label="Nearby Fans" value={nearbyUsers.length.toString()} hint="+5 since arrival" icon={<Users className="size-5" />} delay={0.02} />
         <StatCard label="Messages" value="142" hint="12 unread" icon={<MessageCircle className="size-5" />} delay={0.04} />
         <StatCard label="Alerts" value="3" hint="1 high priority" icon={<Siren className="size-5" />} accent="bg-destructive" delay={0.06} />
-        <StatCard label="Wallet" value={`$${CURRENT_USER.walletBalance.toFixed(0)}`} hint="+$48 today" icon={<Wallet className="size-5" />} delay={0.08} />
+        <StatCard label="Wallet" value={`$${balance.toFixed(0)}`} hint="+$48 today" icon={<Wallet className="size-5" />} delay={0.08} />
         <StatCard label="Listings" value="6" hint="2 active offers" icon={<ShoppingBag className="size-5" />} delay={0.10} />
         <StatCard label="AI Insights" value="25" hint="updated 2m ago" icon={<Sparkles className="size-5" />} delay={0.12} />
       </div>
@@ -167,7 +173,7 @@ function Dashboard() {
         <Card className="glass rounded-2xl p-5 border-0">
           <SectionTitle action={<Link to="/nearby" className="text-xs text-primary">View all</Link>}>Nearby Fans</SectionTitle>
           <div className="space-y-2">
-            {FANS.slice(0, 5).map((f) => (
+            {nearbyUsers.slice(0, 5).map((f) => (
               <div key={f.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/40 transition">
                 <Avatar className="size-10"><AvatarImage src={f.avatar} /><AvatarFallback>{f.name[0]}</AvatarFallback></Avatar>
                 <div className="flex-1 min-w-0">
@@ -183,7 +189,7 @@ function Dashboard() {
         <Card className="glass rounded-2xl p-5 border-0">
           <SectionTitle action={<Link to="/notifications" className="text-xs text-primary">View all</Link>}>Recent Activity</SectionTitle>
           <div className="space-y-2">
-            {NOTIFICATIONS.slice(0, 5).map((n) => (
+            {notifications.slice(0, 5).map((n) => (
               <div key={n.id} className="flex items-start gap-3 p-2 rounded-xl">
                 <div className="size-9 rounded-xl glass grid place-items-center"><Zap className="size-4 text-primary" /></div>
                 <div className="flex-1">

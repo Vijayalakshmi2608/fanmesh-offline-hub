@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/common/PageHeader";
-import { FANS } from "@/lib/mock-data";
+import { useNearbyFansStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,7 +13,8 @@ export const Route = createFileRoute("/lost-friend")({
 });
 
 function Lost() {
-  const friends = FANS.slice(0, 6);
+  const nearbyUsers = useNearbyFansStore((state) => state.nearbyUsers);
+  const friends = nearbyUsers.slice(0, 6);
   return (
     <div>
       <PageHeader icon={<Search className="size-5" />} title="Lost Friend Finder" subtitle="Ping your group through the mesh and triangulate via nearby peers" />

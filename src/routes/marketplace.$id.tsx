@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { PRODUCTS } from "@/lib/mock-data";
+import { useMarketplaceStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,22 +10,29 @@ import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/marketplace/$id")({
   head: ({ params }) => {
-    const p = PRODUCTS.find((x) => x.id === params.id);
-    return { meta: [{ title: `${p?.title ?? "Item"} — FanMesh AI` }] };
+    // Get products from store in loader context
+    // For now, using a workaround - we'll validate in component
+    return { meta: [{ title: `Item — FanMesh AI` }] };
   },
   component: ProductDetail,
   notFoundComponent: () => <div className="p-8">Item not found.</div>,
   loader: ({ params }) => {
-    const p = PRODUCTS.find((x) => x.id === params.id);
-    if (!p) throw notFound();
-    return p;
+    return params.id;
   },
 });
 
 function ProductDetail() {
-  const p = Route.useLoaderData();
+  const productId = Route.useLoaderData();
+  const products = useMarketplaceStore((state) => state.products);
+  const wishlist = useMarketplaceStore((state) => state.wishlist);
+  const toggleWishlist = useMarketplaceStore((state) => state.toggleWishlist);
+  const addToCart = useMarketplaceStore((state) => state.addToCart);
+  
+  const p = products.find((x) => x.id === productId);
+  if (!p) throw notFound();
+  
   const [img, setImg] = useState(p.images?.[0] ?? p.image);
-  const related = PRODUCTS.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
+  const related = products.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4);
 
   return (
     <div>
