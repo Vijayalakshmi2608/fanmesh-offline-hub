@@ -40,7 +40,7 @@ function ProductDetail() {
             <img src={img} alt={p.title} className="size-full object-cover" />
           </motion.div>
           <div className="mt-3 flex gap-2">
-            {p.images?.map((i) => (
+            {p.images?.map((i: string) => (
               <button key={i} onClick={() => setImg(i)} className={`size-20 rounded-xl overflow-hidden border-2 ${i === img ? "border-primary" : "border-transparent"}`}>
                 <img src={i} alt="" className="size-full object-cover" />
               </button>
