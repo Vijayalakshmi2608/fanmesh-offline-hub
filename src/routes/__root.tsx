@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -37,9 +36,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -85,8 +82,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "FanMesh AI — The Offline Football Super App" },
       { name: "twitter:description", content: "Stadium-grade fan super app: nearby mesh chat, AI translation, marketplace, wallet and emergency alerts that work offline." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a901760b-deb1-4f68-97e5-02b0dd27eb7c/id-preview-37914699--7e57d156-b476-4995-b767-990182e54ae0.lovable.app-1782791778104.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a901760b-deb1-4f68-97e5-02b0dd27eb7c/id-preview-37914699--7e57d156-b476-4995-b767-990182e54ae0.lovable.app-1782791778104.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
