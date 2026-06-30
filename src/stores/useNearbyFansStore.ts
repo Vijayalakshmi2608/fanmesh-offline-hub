@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Fan } from "@/types";
-import { FANS } from "@/lib/mock-data";
+import { FANS } from "@/mock";
 
 interface NearbyFansStore {
   nearbyUsers: Fan[];

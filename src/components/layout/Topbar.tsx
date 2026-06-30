@@ -5,11 +5,30 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link } from "@tanstack/react-router";
-import { CURRENT_USER } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { DashboardService, UserService } from "@/services";
 
 export function Topbar({
-  onOpenSidebar, onOpenNotifications,
-}: { onOpenSidebar: () => void; onOpenNotifications: () => void }) {
+  onOpenSidebar,
+  onOpenNotifications,
+}: {
+  onOpenSidebar: () => void;
+  onOpenNotifications: () => void;
+}) {
+  const userQuery = useQuery({
+    queryKey: ["current-user"],
+    queryFn: () => UserService.getCurrentUser(),
+    staleTime: 60_000,
+  });
+  const dashboardQuery = useQuery({
+    queryKey: ["dashboard-summary"],
+    queryFn: () => DashboardService.getDashboardStats(),
+    staleTime: 60_000,
+  });
+
+  const currentUser = userQuery.data;
+  const dashboard = dashboardQuery.data;
+
   return (
     <header className="sticky top-0 z-30 glass-strong border-b border-border">
       <div className="flex items-center gap-3 px-4 lg:px-6 h-16">
@@ -19,15 +38,17 @@ export function Topbar({
 
         <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground glass rounded-full px-3 py-1.5">
           <MapPin className="size-3.5 text-primary" />
-          <span className="font-medium text-foreground">Santiago Bernabéu</span>
-          <span className="opacity-50">·</span>
+          <span className="font-medium text-foreground">
+            {dashboard?.currentStadium.name ?? "Loading stadium"}
+          </span>
+          <span className="opacity-50">Â·</span>
           <span>Sector B12</span>
         </div>
 
         <div className="flex-1 max-w-lg mx-auto relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
-            placeholder="Search fans, products, alerts…"
+            placeholder="Search fans, products, alertsâ€¦"
             className="pl-9 h-10 rounded-full bg-secondary/60 border-transparent focus-visible:border-primary"
           />
         </div>
@@ -37,7 +58,7 @@ export function Topbar({
             <Wifi className="size-3" /> Mesh
           </Badge>
           <Badge variant="outline" className="gap-1.5 rounded-full">
-            <Users className="size-3" /> 24 nearby
+            <Users className="size-3" /> {dashboard?.nearbyFans.length ?? 0} nearby
           </Badge>
         </div>
 
@@ -50,15 +71,17 @@ export function Topbar({
           <DropdownMenuTrigger asChild>
             <button className="rounded-full ring-2 ring-primary/40 hover:ring-primary transition">
               <Avatar className="size-9">
-                <AvatarImage src={CURRENT_USER.avatar} alt={CURRENT_USER.name} />
+                <AvatarImage src={currentUser?.avatar} alt={currentUser?.name} />
                 <AvatarFallback>AM</AvatarFallback>
               </Avatar>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 glass-strong">
             <DropdownMenuLabel>
-              <div className="font-semibold">{CURRENT_USER.name}</div>
-              <div className="text-xs text-muted-foreground">{CURRENT_USER.username} · {CURRENT_USER.flag} {CURRENT_USER.country}</div>
+              <div className="font-semibold">{currentUser?.name ?? "Loading..."}</div>
+              <div className="text-xs text-muted-foreground">
+                {currentUser ? `${currentUser.username} Â· ${currentUser.flag} ${currentUser.country}` : "Fetching profile"}
+              </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild><Link to="/profile">Profile</Link></DropdownMenuItem>

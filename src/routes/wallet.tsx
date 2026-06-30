@@ -1,38 +1,51 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/common/PageHeader";
-import { useWalletStore } from "@/stores";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wallet, ArrowDownLeft, ArrowUpRight, QrCode, TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import { WalletService } from "@/services";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/wallet")({
-  head: () => ({ meta: [{ title: "Wallet — FanMesh AI" }] }),
+  head: () => ({ meta: [{ title: "Wallet â€” FanMesh AI" }] }),
   component: WalletPage,
 });
 
-const chart = Array.from({ length: 14 }, (_, i) => ({ d: `D${i + 1}`, v: 800 + Math.round(Math.sin(i) * 120 + Math.random() * 200) }));
-
 function WalletPage() {
-  const balance = useWalletStore((state) => state.balance);
-  const transactions = useWalletStore((state) => state.transactions);
-  const income = useWalletStore((state) => state.transactions.filter(t => t.type === "in").reduce((s, t) => s + t.amount, 0));
-  const expense = useWalletStore((state) => state.transactions.filter(t => t.type === "out").reduce((s, t) => s + t.amount, 0));
+  const balanceQuery = useQuery({
+    queryKey: ["wallet", "balance"],
+    queryFn: () => WalletService.getBalance(),
+    staleTime: 60_000,
+  });
+  const transactionsQuery = useQuery({
+    queryKey: ["wallet", "transactions"],
+    queryFn: () => WalletService.getTransactions(),
+    staleTime: 60_000,
+  });
+
+  if (balanceQuery.isLoading || transactionsQuery.isLoading) return <WalletSkeleton />;
+  if (balanceQuery.isError || transactionsQuery.isError) return <WalletError />;
+
+  const balance = balanceQuery.data ?? 0;
+  const transactions = transactionsQuery.data ?? [];
+  const income = transactions.filter((transaction) => transaction.type === "in").reduce((sum, transaction) => sum + transaction.amount, 0);
+  const expense = transactions.filter((transaction) => transaction.type === "out").reduce((sum, transaction) => sum + transaction.amount, 0);
+  const chart = Array.from({ length: 14 }, (_, i) => ({ d: `D${i + 1}`, v: 800 + Math.round(Math.sin(i) * 120 + Math.random() * 200) }));
 
   return (
     <div>
-      <PageHeader icon={<Wallet className="size-5" />} title="Wallet" subtitle="Local WDK wallet · settles via mesh when online" />
+      <PageHeader icon={<Wallet className="size-5" />} title="Wallet" subtitle="Local WDK wallet Â· settles via mesh when online" />
 
       <div className="grid lg:grid-cols-[1.2fr_1fr] gap-4">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl p-8 gradient-hero shadow-elegant overflow-hidden">
-          <div className="absolute inset-0 opacity-20"
-               style={{ backgroundImage: "radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-3xl p-8 gradient-hero shadow-elegant overflow-hidden">
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
           <div className="relative">
             <div className="text-xs uppercase tracking-widest text-muted-foreground">Total Balance</div>
             <div className="text-5xl font-extrabold mt-2">${balance.toFixed(2)}</div>
-            <div className="text-sm text-muted-foreground mt-1">≈ 0.0184 BTC · WDK secured</div>
+            <div className="text-sm text-muted-foreground mt-1">≈ 0.0184 BTC Â· WDK secured</div>
             <div className="mt-6 grid grid-cols-3 gap-2">
               <Button className="rounded-full gradient-primary text-primary-foreground"><ArrowDownLeft className="size-4 mr-1.5" /> Receive</Button>
               <Button variant="outline" className="rounded-full"><ArrowUpRight className="size-4 mr-1.5" /> Send</Button>
@@ -79,19 +92,19 @@ function WalletPage() {
       <Card className="glass rounded-2xl p-5 border-0 mt-6">
         <div className="font-semibold mb-2">Transaction History</div>
         <div className="divide-y divide-border">
-          {transactions.map((t) => (
-            <div key={t.id} className="flex items-center justify-between py-3">
+          {transactions.map((transaction) => (
+            <div key={transaction.id} className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
-                <div className={`size-10 rounded-xl grid place-items-center ${t.type === "in" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
-                  {t.type === "in" ? <ArrowDownLeft className="size-4" /> : <ArrowUpRight className="size-4" />}
+                <div className={`size-10 rounded-xl grid place-items-center ${transaction.type === "in" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
+                  {transaction.type === "in" ? <ArrowDownLeft className="size-4" /> : <ArrowUpRight className="size-4" />}
                 </div>
                 <div>
-                  <div className="text-sm font-medium">{t.party}</div>
-                  <div className="text-xs text-muted-foreground">{t.note} · {t.time}</div>
+                  <div className="text-sm font-medium">{transaction.party}</div>
+                  <div className="text-xs text-muted-foreground">{transaction.note} Â· {transaction.time}</div>
                 </div>
               </div>
-              <div className={`font-semibold tabular-nums ${t.type === "in" ? "text-primary" : "text-destructive"}`}>
-                {t.type === "in" ? "+" : "-"}${t.amount}
+              <div className={`font-semibold tabular-nums ${transaction.type === "in" ? "text-primary" : "text-destructive"}`}>
+                {transaction.type === "in" ? "+" : "-"}${transaction.amount}
               </div>
             </div>
           ))}
@@ -99,4 +112,21 @@ function WalletPage() {
       </Card>
     </div>
   );
+}
+
+function WalletSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-16 w-72 rounded-2xl" />
+      <div className="grid lg:grid-cols-[1.2fr_1fr] gap-4">
+        <Skeleton className="h-[420px] rounded-3xl" />
+        <Skeleton className="h-[420px] rounded-3xl" />
+      </div>
+      <Skeleton className="h-72 rounded-2xl" />
+    </div>
+  );
+}
+
+function WalletError() {
+  return <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">Unable to load wallet data.</div>;
 }

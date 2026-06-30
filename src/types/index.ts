@@ -35,6 +35,18 @@ export type UserState = {
   language: string;
 };
 
+export type CurrentUser = {
+  name: string;
+  username: string;
+  country: string;
+  flag: string;
+  team: string;
+  language: string;
+  avatar: string;
+  walletBalance: number;
+  achievements: string[];
+};
+
 // ============================================================================
 // Chat Domain
 // ============================================================================
@@ -163,6 +175,20 @@ export type StadiumInfo = {
   teams?: string[];
 };
 
+export type MatchTeam = {
+  name: string;
+  flag: string;
+  logo: string;
+};
+
+export type MatchInfo = {
+  home: MatchTeam;
+  away: MatchTeam;
+  stadium: string;
+  kickoff: string;
+  countdownMs: number;
+};
+
 // ============================================================================
 // Translation Domain
 // ============================================================================
@@ -189,4 +215,50 @@ export type SettingsState = {
     reducedMotion: boolean;
     highContrast: boolean;
   };
+};
+
+// ============================================================================
+// Dashboard Domain
+// ============================================================================
+
+export type DashboardMetric = {
+  label: string;
+  value: string;
+  hint: string;
+  icon: string;
+  accent?: string;
+};
+
+export type MeshActivityPoint = {
+  name: string;
+  fans: number;
+  msgs: number;
+};
+
+export type TopNationality = {
+  code: string;
+  value: number;
+};
+
+export type DashboardStats = {
+  currentUser: CurrentUser;
+  currentStadium: StadiumInfo;
+  todaysMatch: MatchInfo;
+  metrics: DashboardMetric[];
+  nearbyFans: Fan[];
+  notifications: AppNotification[];
+  transactions: Transaction[];
+  meshActivity: MeshActivityPoint[];
+  topNationalities: TopNationality[];
+};
+
+// ============================================================================
+// Translation View Models
+// ============================================================================
+
+export type TranslationSample = {
+  from: string;
+  to: string;
+  src: string;
+  out: string;
 };

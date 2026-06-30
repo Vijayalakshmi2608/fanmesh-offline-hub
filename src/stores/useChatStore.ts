@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Conversation, Message } from "@/types";
-import { CONVERSATIONS, MESSAGES } from "@/lib/mock-data";
+import { CONVERSATIONS, MESSAGES } from "@/mock";
 
 interface ChatStore {
   conversations: Conversation[];

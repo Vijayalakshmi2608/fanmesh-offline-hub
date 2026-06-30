@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Product, CartItem } from "@/types";
-import { PRODUCTS } from "@/lib/mock-data";
+import { PRODUCTS } from "@/mock";
 
 type ProductCategory = "Tickets" | "Jerseys" | "Scarves" | "Food Coupons" | "Collectibles" | "All";
 

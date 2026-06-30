@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Transaction } from "@/types";
-import { CURRENT_USER, TRANSACTIONS } from "@/lib/mock-data";
+import { CURRENT_USER, TRANSACTIONS } from "@/mock";
 
 interface WalletStore {
   balance: number;

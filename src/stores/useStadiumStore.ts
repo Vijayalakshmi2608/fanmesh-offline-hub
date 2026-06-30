@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { StadiumSection, StadiumInfo } from "@/types";
-import { STADIUM_SECTIONS } from "@/lib/mock-data";
+import { STADIUM_SECTIONS } from "@/mock";
 
 interface StadiumStore {
   selectedStadium: StadiumInfo;

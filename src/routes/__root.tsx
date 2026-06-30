@@ -7,8 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
+import { AppShell } from "../components/layout/AppShell";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -109,8 +110,6 @@ function RootShell({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
-import { AppShell } from "../components/layout/AppShell";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();

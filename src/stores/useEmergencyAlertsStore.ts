@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Alert } from "@/types";
-import { ALERTS } from "@/lib/mock-data";
+import { ALERTS } from "@/mock";
 
 interface EmergencyAlertsStore {
   alerts: Alert[];

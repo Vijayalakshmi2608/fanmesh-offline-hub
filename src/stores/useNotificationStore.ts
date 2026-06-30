@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { AppNotification } from "@/types";
-import { NOTIFICATIONS } from "@/lib/mock-data";
+import { NOTIFICATIONS } from "@/mock";
 
 interface NotificationStore {
   notifications: AppNotification[];

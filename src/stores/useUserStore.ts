@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Theme, UserProfile, NotificationSettings } from "@/types";
-import { CURRENT_USER } from "@/lib/mock-data";
+import { CURRENT_USER } from "@/mock";
 
 interface UserStore {
   profile: UserProfile;
